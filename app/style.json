@@ -1,0 +1,54 @@
+{
+  "version": 8,
+  "name": "Topotrek Style",
+  "pitch": 45,
+  "zoom": 3,
+  "center": [-103.59, 41.67],
+  "sources": {
+    "osm": {
+      "type": "vector",
+      "url": "pmtiles://https://REPLACE_WITH_YOUR_R2_BUCKET_URL/vector.pmtiles",
+      "attribution": "© OpenStreetMap"
+    },
+    "terrain": {
+      "type": "raster-dem",
+      "url": "pmtiles://https://REPLACE_WITH_YOUR_R2_BUCKET_URL/terrain.pmtiles",
+      "tileSize": 256,
+      "attribution": "NASA, USGS"
+    }
+  },
+  "terrain": {
+    "source": "terrain",
+    "exaggeration": 1.5
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f8f4f0"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "osm",
+      "source-layer": "water",
+      "filter": ["==", "$type", "Polygon"],
+      "paint": {
+        "fill-color": "#a0c8f0"
+      }
+    },
+    {
+      "id": "hillshade",
+      "type": "hillshade",
+      "source": "terrain",
+      "paint": {
+        "hillshade-shadow-color": "#473B3B",
+        "hillshade-highlight-color": "#FFFFFF",
+        "hillshade-accent-color": "#473B3B",
+        "hillshade-exaggeration": 0.4
+      }
+    }
+  ]
+}
