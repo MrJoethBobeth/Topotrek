@@ -1,62 +1,72 @@
-# Use a base Ubuntu image with common tools
-FROM ubuntu:22.04
+# Stage 1: Builder
+# This stage compiles the 'tilemaker' tool from source.
+FROM ubuntu:22.04 AS builder
 
-# Avoid interactive prompts during package installation
+# Set a non-interactive frontend for package installations to avoid prompts.
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install base dependencies and geospatial tools
-# This is a comprehensive list including all libraries required by tilemaker
-RUN apt-get update && apt-get install -y \
-    # Core build tools
+# Install all known build dependencies for tilemaker.
+RUN apt-get update && \
+    apt-get install -y \
     build-essential \
     cmake \
     git \
-    wget \
-    unzip \
-    # Libraries for Tilemaker compilation
     libboost-all-dev \
-    libshp-dev \
-    liblua5.3-dev \
-    libexpat1-dev \
-    # Libraries for GDAL and other tools
-    libsqlite3-dev \
     zlib1g-dev \
-    luajit \
-    libluajit-5.1-dev \
+    liblua5.3-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    rapidjson-dev \
+    libshp-dev \
+    libsqlite3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Clone the tilemaker repository.
+RUN git clone https://github.com/systemed/tilemaker.git /usr/src/tilemaker
+
+# Build tilemaker.
+WORKDIR /usr/src/tilemaker
+RUN mkdir build && cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install
+
+# -----------------------------------------------------------------------------
+
+# Stage 2: Final Image
+# This stage creates the final, lean image with only the necessary runtime tools.
+FROM ubuntu:22.04
+
+# Set a non-interactive frontend for package installations.
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install runtime dependencies needed for the script.
+# This includes Node.js for wrangler, GDAL for GIS operations, and wget.
+RUN apt-get update && \
+    apt-get install -y \
+    wget \
     gdal-bin \
     python3-gdal \
-    python3-pip \
-    # Node.js and npm for pmtiles and wrangler
     nodejs \
-    npm
+    npm \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Tilemaker from source
-RUN git clone https://github.com/systemed/tilemaker.git /usr/src/tilemaker
-# Create a build directory and set it as the working directory
-WORKDIR /usr/src/tilemaker
-RUN mkdir build
-WORKDIR /usr/src/tilemaker/build
-
-# Run cmake from the build directory, pointing to the parent source directory
-RUN cmake ..
-# Now run make and make install
-RUN make
-RUN make install
-
-# Reset working directory for subsequent commands
-WORKDIR /
-
-# Install PMTiles and Wrangler via npm
+# Install PMTiles and Cloudflare Wrangler CLIs via npm.
+# This is more robust than using wget for a specific version.
 RUN npm install -g pmtiles wrangler
 
-# Set up the final working directory for the map build script
-WORKDIR /map_build
+# Copy the compiled tilemaker binary from the builder stage.
+COPY --from=builder /usr/local/bin/tilemaker /usr/local/bin/tilemaker
 
-# Copy the build script into the container from the correct sub-directory
-# This path is relative to the build context (the project root)
-COPY data-pipeline/build_map.sh .
-# Make the script executable
-RUN chmod +x build_map.sh
+# Set up the working directory.
+WORKDIR /app
 
-# The command that will run when the container starts
+# Copy the build script into the image.
+COPY ./data-pipeline/build_map.sh .
+
+# Make the script executable.
+RUN chmod +x ./build_map.sh
+
+# Set the entrypoint to the build script.
 ENTRYPOINT ["./build_map.sh"]
