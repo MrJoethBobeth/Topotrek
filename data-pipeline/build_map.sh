@@ -61,5 +61,5 @@ wrangler r2 object put "${R2_BUCKET_NAME}/vector.pmtiles" --file=final_tilesets/
 wrangler r2 object put "${R2_BUCKET_NAME}/terrain.pmtiles" --file=final_tilesets/terrain.pmtiles --content-type="application/octet-stream"
 
 echo "--- MAP BUILD COMPLETE ---"
-echo "Vector tiles deployed to: https://YOUR_R2_PUBLIC_URL/${R2_BUCKET_NAME}/vector.pmtiles"
-echo "Terrain tiles deployed to: https://YOUR_R2_PUBLIC_URL/${R2_BUCKET_NAME}/terrain.pmtiles"
+echo "Vector tiles deployed to: https://pub-1636e051e3464ab48e64a0f8d95a6444.r2.dev/${R2_BUCKET_NAME}/vector.pmtiles"
+echo "Terrain tiles deployed to: https://pub-1636e051e3464ab48e64a0f8d95a6444.r2.dev/${R2_BUCKET_NAME}/terrain.pmtiles"
