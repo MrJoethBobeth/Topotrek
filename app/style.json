@@ -2,18 +2,26 @@
   "version": 8,
   "name": "Topotrek Style",
   "pitch": 45,
-  "zoom": 3,
-  "center": [-103.59, 41.67],
+  "zoom": 12,
+  "center": [11.2543, 43.7672],
+  "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
   "sources": {
     "osm": {
       "type": "vector",
-      "url": "pmtiles://https://REPLACE_WITH_YOUR_R2_BUCKET_URL/vector.pmtiles",
-      "attribution": "© OpenStreetMap"
+      "tiles": [
+        "https://demotiles.maplibre.org/planet/{z}/{x}/{y}.mvt"
+      ],
+      "maxzoom": 14,
+      "attribution": "© <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
     },
     "terrain": {
       "type": "raster-dem",
-      "url": "pmtiles://https://REPLACE_WITH_YOUR_R2_BUCKET_URL/terrain.pmtiles",
+      "tiles": [
+        "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
+      ],
       "tileSize": 256,
+      "encoding": "terrarium",
+      "maxzoom": 15,
       "attribution": "NASA, USGS"
     }
   },
@@ -31,18 +39,47 @@
     },
     {
       "id": "water",
-      "type": "fill",
       "source": "osm",
       "source-layer": "water",
-      "filter": ["==", "$type", "Polygon"],
+      "type": "fill",
       "paint": {
         "fill-color": "#a0c8f0"
+      }
+    },
+    {
+      "id": "landuse_residential",
+      "type": "fill",
+      "source": "osm",
+      "source-layer": "landuse",
+      "filter": [ "==", "class", "residential" ],
+      "paint": {
+        "fill-color": "#e0e0e0"
+      }
+    },
+    {
+      "id": "transportation",
+      "type": "line",
+      "source": "osm",
+      "source-layer": "transportation",
+      "paint": {
+        "line-color": "#9c9c9c",
+        "line-width": 1.5
+      }
+    },
+    {
+      "id": "buildings",
+      "source": "osm",
+      "source-layer": "building",
+      "type": "fill",
+      "paint": {
+          "fill-color": "#d9d9d9"
       }
     },
     {
       "id": "hillshade",
       "type": "hillshade",
       "source": "terrain",
+      "layout": { "visibility": "visible" },
       "paint": {
         "hillshade-shadow-color": "#473B3B",
         "hillshade-highlight-color": "#FFFFFF",

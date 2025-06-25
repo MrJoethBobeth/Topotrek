@@ -1,29 +1,31 @@
-import MapLibreGL from '@maplibre/maplibre-react-native';
-import React, { useEffect } from 'react';
+// Correctly import the entire library into the MapLibreGL namespace.
+import * as MapLibreGL from '@maplibre/maplibre-react-native';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-export default function Index() {
-  // We call `setAccessToken` within a useEffect hook to ensure the native module
-  // has been properly initialized before we try to use it.
-  useEffect(() => {
-    // For MapLibre, an access token isn't strictly necessary for open tile sources.
-    // We are setting it to null as we will use our own tile sources later.
-    MapLibreGL.setAccessToken(null);
-  }, []);
+// Import the local style.json file.
+import style from './style.json';
 
-  // A public style URL from MapLibre's demo server.
-  // This provides a basic map layer to verify that the component is working.
-  // In the next steps, you will replace this with the URL to your own style.json
-  // which will be hosted on Cloudflare R2.
-  const styleURL = 'https://demotiles.maplibre.org/style.json';
+export default function Index() {
+  const onDidFailLoadingMap = (event: any) => {
+    // This will now provide much clearer errors if the network requests fail.
+    console.error(`DEBUG: Map render failed. Error: ${event.nativeEvent.payload.error}`);
+  };
+
+  const onDidFinishLoadingMap = () => {
+    console.log('DEBUG: Map finished rendering successfully.');
+  };
 
   return (
     <View style={styles.page}>
       <View style={styles.container}>
+        {/* Use the MapView component from the imported namespace. */}
         <MapLibreGL.MapView
           style={styles.map}
-          styleURL={styleURL}
-          logoEnabled={false} // Hides the MapLibre logo
+          styleJSON={JSON.stringify(style)}
+          logoEnabled={false}
+          onDidFinishLoadingMap={onDidFinishLoadingMap}
+          onDidFailLoadingMap={onDidFailLoadingMap}
         />
       </View>
     </View>
@@ -35,7 +37,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF'
   },
   container: {
     height: '100%',
