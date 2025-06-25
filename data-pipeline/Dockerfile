@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all known build dependencies for tilemaker.
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
     build-essential \
     cmake \
     git \
@@ -21,12 +22,10 @@ RUN apt-get update && \
     libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Clone the tilemaker repository.
-RUN git clone https://github.com/systemed/tilemaker.git /usr/src/tilemaker
-
-# Build tilemaker.
+# Clone the tilemaker repository and build it.
 WORKDIR /usr/src/tilemaker
-RUN mkdir build && cd build && \
+RUN git clone https://github.com/systemed/tilemaker.git . && \
+    mkdir build && cd build && \
     cmake .. && \
     make -j$(nproc) && \
     make install
@@ -40,17 +39,18 @@ FROM ubuntu:22.04
 # Set a non-interactive frontend for package installations.
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install runtime dependencies needed for the script AND for tilemaker to run.
+# Install runtime dependencies needed for the script AND for the compiled tools to run.
+# Added 'golang' to build pmtiles from source.
 RUN apt-get update && \
-    apt-get install -y \
-    wget \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
     gdal-bin \
     python3-gdal \
-    nodejs \    
-    npm \
-    ca-certificates \
+    curl \
+    unzip \
+    git \
     dos2unix \
-    awscli \
+    golang \
     # Add runtime libraries for tilemaker
     liblua5.3-0 \
     zlib1g \
@@ -58,32 +58,42 @@ RUN apt-get update && \
     libsqlite3-0 \
     libprotobuf23 \
     libboost-program-options1.74.0 \
-    libboost-filesystem1.74.0 && \
+    libboost-filesystem1.74.0 \
+    # Add build dependencies for Tippecanoe
+    build-essential \
+    pkg-config \
+    libsqlite3-dev \
+    zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Set the default shell to bash for subsequent RUN commands.
-# This ensures a more predictable environment for PATH variables.
-SHELL ["/bin/bash", "-c"]
+# --- Install Tippecanoe from source ---
+RUN git clone https://github.com/felt/tippecanoe.git /usr/src/tippecanoe && \
+    cd /usr/src/tippecanoe && \
+    make -j$(nproc) && \
+    make install && \
+    cd / && rm -rf /usr/src/tippecanoe
 
-# Install PMTiles and Cloudflare Wrangler CLIs via npm.
-RUN npm install -g pmtiles wrangler
+# --- Install PMTiles binary ---
+# This is the new, official installation method using 'go install'.
+# It is more reliable than downloading release assets directly.
+RUN go install github.com/protomaps/pmtiles/cmd/pmtiles@latest
 
-# Explicitly add the standard global install location for npm packages to the system's PATH.
-# This ensures that commands like 'pmtiles' and 'wrangler' can be found.
-ENV PATH="/usr/local/bin:${PATH}"
+# --- Install Rclone for Cloudflare R2 uploads ---
+RUN curl https://rclone.org/install.sh | bash
 
 # Copy the compiled tilemaker binary from the builder stage.
 COPY --from=builder /usr/local/bin/tilemaker /usr/local/bin/tilemaker
 
-# Set up the working directory.
+# Set up the working directory and copy the build script.
 WORKDIR /app
-
-# Copy the build script into the image.
 COPY data-pipeline/build_map.sh .
 
-# Use dos2unix to ensure line endings are correct, then make the script executable.
+# Fix Windows line endings and make the script executable.
 RUN dos2unix ./build_map.sh && \
     chmod +x ./build_map.sh
 
-# Set the entrypoint to explicitly use /bin/bash to run the script.
-ENTRYPOINT ["/bin/bash", "./build_map.sh"]
+# Go installs binaries to /root/go/bin by default. Add this to the PATH.
+ENV PATH="/root/go/bin:${PATH}"
+
+# Set the entrypoint to run the script.
+ENTRYPOINT ["./build_map.sh"]
