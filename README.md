@@ -1,50 +1,19 @@
-# Welcome to your Expo app 👋
+# TopoTrek: Project Summary
+## 🎯 Project Goal: A Unified and Superior Hiking Navigation Experience
+The primary objective of TopoTrek is to develop a premier hiking and outdoor navigation application that resolves the key frustrations users face with existing tools. The current market is fractured: generalist applications like Google and Apple Maps are dangerously unreliable for backcountry use, while specialized apps force a compromise. Users often choose between the socially-driven, but often inaccurate, trail discovery of platforms like AllTrails and the powerful, but complex and less user-friendly, navigation tools like Gaia GPS and OnX.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+TopoTrek aims to bridge this gap by creating a single, integrated platform that delivers both intuitive trail discovery and a robust, reliable, and visually stunning navigation engine. The core mission is to combine the best features of its competitors—social proof, high-quality data layers, and powerful offline capabilities—into one seamless and beautiful user experience.
 
-## Get started
+## 🛠️ A Modern, Open-Source Technology Stack
+A key pillar of the TopoTrek strategy is its reliance on a powerful, customizable, and cost-effective open-source technology stack. This approach avoids vendor lock-in and provides complete control over the application's features and performance.
 
-1. Install dependencies
+Core Technology Components
+Map Rendering & Visualization: The visual heart of the app will be powered by `MapLibre`, a community-driven fork of Mapbox GL. This choice eliminates licening fees and allows for deep customization. The app's signature feature will be its beautiful 3D terrain visualization, achieved by processing high-resolution Digital Elevation Model (DEM) data from sources like USGS 3DEP into a Terrain-RGB tile format. For efficient and exceptionally low-cost global delivery of these map tiles, the plan specifies using the PMTiles archive format hosted on Cloudflare R2.
 
-   ```bash
-   npm install
-   ```
+Intelligent Routing Engine: For navigation, TopoTrek will utilize a self-hosted instance of Valhalla. Valhalla's standout feature is its dynamic, run-time costing, which enables the creation of highly personalized hiking routes based on user preferences like fitness level, desired elevation gain, and preferred trail surfaces. This moves beyond simple point-to-point directions to offer a truly intelligent routing experience.
 
-2. Start the app
+Cross-Platform Development: The application will be built using React Native with Expo's Bare Workflow. This framework allows for a single codebase to target both iOS and Android, while the Bare Workflow provides the necessary access to native code required for high-performance modules like MapLibre Native.
 
-   ```bash
-   npx expo start
-   ```
+Data and Backend: The backend will be built on a scalable, serverless microservices architecture using AWS Lambda for compute and Amazon RDS for PostgreSQL with the PostGIS extension. PostGIS is critical for efficiently storing and querying the geospatial data that forms the foundation of the app, including user-created routes, points of interest, reviews, and photos. Initial trail data will be sourced from OpenStreetMap (OSM), with a long-term strategy to build a proprietary, curated, and more reliable trail database through community contributions.
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+By integrating these technologies, TopoTrek is positioned to be a visually superior, highly functional, and community-driven application that sets a new standard for digital cartography in the outdoor recreation space.
