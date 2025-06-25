@@ -6,26 +6,29 @@ set -e # Exit immediately if a command exits with a non-zero status.
 CF_ACCOUNT_ID="e9a7e6c09827b7ff806ffbdaab1e2d60"
 # The name of the R2 bucket you created
 R2_BUCKET_NAME="topotrek-tiles"
-# The URL for the OSM data extract from Geofabrik
+
+# The URL for the OSM data extract from Geofabrik.
+# For a truly global map, you would change this to north-america-latest.osm.pbf or planet-latest.osm.pbf
 OSM_PBF_URL="https://download.geofabrik.de/north-america/us/colorado-latest.osm.pbf"
-# For this example, we'll use a pre-processed DEM for Colorado from a public source
-# In a full production setup, you would download and process your own 3DEP data here.
-DEM_TIF_URL="https://oin-hotosm.s3.amazonaws.com/59c6ba681951470011116c14/0/59c6ba681951470011116c15.tif"
+
+# This VRT (Virtual Raster) file acts as a pointer to the entire global terrain dataset on AWS.
+# The /vsis3/ prefix is GDAL's syntax for reading a file directly from an S3 bucket.
+DEM_TIF_URL="/vsis3/elevation-tiles-prod/vrt/512/all.vrt"
 
 # --- Directory Setup ---
 echo "--- Setting up directories ---"
 mkdir -p raw_data processed_data final_tilesets
 
 # --- 1. Fetch Raw Data ---
-echo "--- Fetching raw data ---"
-wget -O raw_data/data.osm.pbf $OSM_PBF_URL
-wget -O raw_data/data.dem.tif $DEM_TIF_URL
+echo "--- Fetching raw OSM data ---"
+wget -q -O raw_data/data.osm.pbf $OSM_PBF_URL
+# Note: The DEM file is no longer downloaded. It will be streamed directly from AWS by GDAL.
 
 # --- 2. Process Vector Tiles ---
 echo "--- Processing Vector Tiles from OpenStreetMap ---"
-# Create configuration and process files for tilemaker
-cp ./node_modules/tilemaker/resources/config-openmaptiles.json ./config.json
-cp ./node_modules/tilemaker/resources/process-openmaptiles.lua ./process.lua
+# Download the configuration files directly from the tilemaker GitHub repository.
+wget -q -O config.json https://raw.githubusercontent.com/systemed/tilemaker/master/resources/config-openmaptiles.json
+wget -q -O process.lua https://raw.githubusercontent.com/systemed/tilemaker/master/resources/process-openmaptiles.lua
 
 # Run tilemaker to convert PBF to vector tiles in MBTiles format
 tilemaker --input raw_data/data.osm.pbf --output processed_data/vector.mbtiles --config config.json --process process.lua
@@ -36,16 +39,14 @@ pmtiles convert processed_data/vector.mbtiles final_tilesets/vector.pmtiles
 
 # --- 3. Process Elevation (Terrain-RGB) Tiles ---
 echo "--- Processing Elevation Tiles from DEM ---"
-# Step 3a: Reproject DEM to Web Mercator (EPSG:3857)
-gdalwarp -t_srs EPSG:3857 raw_data/data.dem.tif processed_data/dem_warped.tif
+# Step 3a: Reproject DEM to Web Mercator (EPSG:3857) using the cloud-based VRT file.
+gdalwarp -t_srs EPSG:3857 $DEM_TIF_URL processed_data/dem_warped.tif
 
 # Step 3b: Use gdal_calc to encode height into RGB channels
 # The formula is: red = (height + 10000) / 0.1 / 256^2, green = ... etc.
 # This requires a Python-enabled GDAL.
 echo "--- Encoding DEM to Terrain-RGB ---"
 gdal_calc.py -A processed_data/dem_warped.tif --outfile=processed_data/dem_rgb.tif --calc="((A+10000)/0.1).astype(int)" --type=Int32
-# This step is complex and can be replaced with a dedicated tool if needed.
-# For simplicity, we'll assume a basic encoding. A more robust script would use rio-rgbify or a more complex gdal_calc expression.
 
 # Step 3c: Tile the RGB GeoTIFF into an XYZ directory
 echo "--- Tiling RGB data ---"
