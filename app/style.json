@@ -1,11 +1,11 @@
 {
   "version": 8,
   "name": "Topotrek Debug Style",
-  "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+  "glyphs": "pmtiles://us-northeast-osm.pmtiles",
   "sources": {
     "basemap-osm": {
       "type": "vector",
-      "url": "pmtiles://https://pub-1636e051e3464ab48e64a0f8d95a6444.r2.dev/basemap/us-northeast-osm.pmtiles",
+      "url": "pmtiles://us-northeast-osm.pmtiles",
       "attribution": "© OpenStreetMap contributors"
     }
   },
@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "debug-landuse",
+      "id": "landuse",
       "type": "fill",
       "source": "basemap-osm",
       "source-layer": "landuse",
@@ -28,7 +28,7 @@
       }
     },
     {
-      "id": "debug-landcover",
+      "id": "landcover",
       "type": "fill",
       "source": "basemap-osm",
       "source-layer": "landcover",
@@ -38,7 +38,7 @@
       }
     },
     {
-      "id": "debug-park",
+      "id": "park",
       "source": "basemap-osm",
       "source-layer": "park",
       "type": "fill",
@@ -48,7 +48,7 @@
       }
     },
     {
-      "id": "debug-water",
+      "id": "water",
       "source": "basemap-osm",
       "source-layer": "water",
       "type": "fill",
@@ -57,7 +57,7 @@
       }
     },
     {
-      "id": "debug-transportation",
+      "id": "transportation",
       "type": "line",
       "source": "basemap-osm",
       "source-layer": "transportation",
@@ -67,7 +67,7 @@
       }
     },
     {
-      "id": "debug-buildings",
+      "id": "buildings",
       "source": "basemap-osm",
       "source-layer": "building",
       "type": "fill",
@@ -77,7 +77,7 @@
       }
     },
     {
-      "id": "debug-place-labels",
+      "id": "place-labels",
       "source": "basemap-osm",
       "source-layer": "place",
       "type": "symbol",

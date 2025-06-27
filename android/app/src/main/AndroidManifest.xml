@@ -25,6 +25,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="topotrek"/>
+        <data android:scheme="exp+topotrek"/>
       </intent-filter>
     </activity>
   </application>
