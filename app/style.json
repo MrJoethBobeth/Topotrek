@@ -3,31 +3,14 @@
   "name": "Topotrek Style",
   "pitch": 45,
   "zoom": 12,
-  "center": [11.2543, 43.7672],
+  "center": [-71.5, 44.1],
   "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
   "sources": {
-    "osm": {
+    "basemap-osm": {
       "type": "vector",
-      "tiles": [
-        "https://demotiles.maplibre.org/planet/{z}/{x}/{y}.mvt"
-      ],
-      "maxzoom": 14,
+      "url": "pmtiles://https://pub-1636e051e3464ab48e64a0f8d95a6444.r2.dev/basemap/us-northeast-osm.pmtiles",
       "attribution": "© <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-    },
-    "terrain": {
-      "type": "raster-dem",
-      "tiles": [
-        "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png" 
-      ],
-      "tileSize": 256,
-      "encoding": "terrarium",
-      "maxzoom": 15,
-      "attribution": "NASA, USGS"
     }
-  },
-  "terrain": {
-    "source": "terrain",
-    "exaggeration": 1.5
   },
   "layers": [
     {
@@ -47,44 +30,87 @@
       }
     },
     {
-      "id": "landuse_residential",
-      "type": "fill",
+      "id": "landcover",
       "source": "osm",
-      "source-layer": "landuse",
-      "filter": [ "==", "class", "residential" ],
+      "source-layer": "landcover",
+      "type": "fill",
       "paint": {
         "fill-color": "#e0e0e0"
       }
     },
     {
-      "id": "transportation",
-      "type": "line",
+      "id": "park",
       "source": "osm",
-      "source-layer": "transportation",
-      "paint": {
-        "line-color": "#9c9c9c",
-        "line-width": 1.5
-      }
-    },
-    {
-      "id": "buildings",
-      "source": "osm",
-      "source-layer": "building",
+      "source-layer": "park",
       "type": "fill",
       "paint": {
-          "fill-color": "#d9d9d9"
+        "fill-color": "#d8e8c8"
       }
     },
     {
-      "id": "hillshade",
-      "type": "hillshade",
-      "source": "terrain",
-      "layout": { "visibility": "visible" },
+      "id": "transportation_area",
+      "source": "osm",
+      "source-layer": "transportation",
+      "type": "fill",
       "paint": {
-        "hillshade-shadow-color": "#473B3B",
-        "hillshade-highlight-color": "#FFFFFF",
-        "hillshade-accent-color": "#473B3B",
-        "hillshade-exaggeration": 0.4
+        "fill-color": "#cfcfcf"
+      }
+    },
+    {
+      "id": "roads",
+      "source": "osm",
+      "source-layer": "transportation",
+      "type": "line",
+      "layout": {
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#ccc",
+        "line-width": {
+          "stops": [
+            [12, 0.5],
+            [20, 18]
+          ]
+        }
+      }
+    },
+    {
+      "id": "roads-bridges",
+      "source": "osm",
+      "source-layer": "transportation",
+      "type": "line",
+      "filter": ["all", ["==", "brunnel", "bridge"]],
+      "layout": {
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#ccc",
+        "line-width": {
+          "stops": [
+            [12, 0.5],
+            [20, 18]
+          ]
+        }
+      }
+    },
+    {
+      "id": "place-labels",
+      "source": "osm",
+      "source-layer": "place",
+      "type": "symbol",
+      "layout": {
+        "text-field": ["get", "name:en"],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": 12,
+        "text-variable-anchor": ["top", "bottom", "left", "right"],
+        "text-radial-offset": 0.5
+      },
+      "paint": {
+        "text-color": "#333",
+        "text-halo-color": "rgba(255,255,255,0.8)",
+        "text-halo-width": 1.2
       }
     }
   ]

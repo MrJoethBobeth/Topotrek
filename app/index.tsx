@@ -1,39 +1,58 @@
 import * as MapLibreGL from '@maplibre/maplibre-react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-// --- GET YOUR FREE API KEY ---
-// 1. Go to https://www.maptiler.com/
-// 2. Sign up for a free account.
-// 3. Find your API key in your account dashboard.
-// 4. Replace "YOUR_API_KEY_HERE" with your actual key.
-const MAPTILER_API_KEY = "hOL9m32oLnOOhz9KAqQQ";
+// Import the style JSON
+import fullMapStyle from './style.json';
 
-// Set the access token for MapTiler. 
-// This is a one-time setup that MapLibre uses for any requests to MapTiler's services.
-MapLibreGL.setAccessToken(null); // We are not using Mapbox, so this can be null.
+// If you are not using a MapTiler key, it's good practice to set the access token to null.
+MapLibreGL.setAccessToken(null);
 
-const App = () => {
-  // This style URL points to a complete map style provided by MapTiler.
-  // It includes both the data sources (vector tiles) and the visual styling rules.
-  // This replaces the need for a local style.json for now.
-  const styleURL = `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`;
+// A minimal, valid style that just shows a background color.
+// This prevents the map from falling back to a default demo style if your main style fails to load.
+const blankStyle = {
+  version: 8,
+  name: 'Blank',
+  sources: {},
+  layers: [
+    {
+      id: 'background',
+      type: 'background',
+      paint: {
+        'background-color': '#f8f4f0', // A light background color
+      },
+    },
+  ],
+};
+
+export default function MapScreen() {
+  // Use state to manage the map style. Start with the blank style.
+  const [style, setStyle] = useState(JSON.stringify(blankStyle));
+
+  // After the component mounts, switch to the full style.
+  useEffect(() => {
+    // We stringify the full style object to pass to the MapView
+    const fullStyleString = JSON.stringify(fullMapStyle);
+    setStyle(fullStyleString);
+  }, []); // The empty dependency array ensures this effect runs only once on mount.
 
   return (
     <View style={styles.container}>
       <MapLibreGL.MapView
         style={styles.map}
-        styleURL={styleURL}
-        logoEnabled={false} // You can disable the logo if you provide proper attribution elsewhere
+        styleJSON={style} // The style is now controlled by our component's state
+        logoEnabled={false}
       >
         <MapLibreGL.Camera
-          zoomLevel={2}
-          centerCoordinate={[-98.5795, 39.8283]} // Center on the USA
+          zoomLevel={9}
+          centerCoordinate={[-71.0589, 42.3601]} // Centered on Boston, MA
+          animationMode={'flyTo'}
+          animationDuration={0}
         />
       </MapLibreGL.MapView>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -43,5 +62,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-export default App;
