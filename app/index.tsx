@@ -1,38 +1,29 @@
-import { StyleSheet, View } from "react-native";
-// Correctly import the MapView component as a named export.
 import { MapView } from '@maplibre/maplibre-react-native';
-// Import the map style from the local JSON file.
-import style from './style.json';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-/**
- * This is the main screen of the application.
- * It displays a full-screen map using MapLibre.
- */
-const Index = () => {
-  return (
-    // A container view that takes up the full screen.
-    <View style={styles.container}>
-      {/* The MapView component renders the map.
-        - The `style` prop makes the map fill its container.
-        - The `styleURL` prop loads the map's appearance. It can accept
-          a URL or, as in this case, a stringified JSON style object.
-      */}
-      <MapView 
-        style={styles.map} 
-        styleURL={JSON.stringify(style)} 
-      />
-    </View>
-  );
-};
+const apiKey = '60c49849-cb48-4c6d-a3df-65f688ec8141';
+const styleUrl = `https://tiles.stadiamaps.com/styles/alidade_smooth.json?api_key=${apiKey}`;
 
-// Use StyleSheet.create for performance and organization.
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
+    page: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF',
+    },
+    map: {
+        flex: 1,
+        alignSelf: 'stretch',
+    },
 });
 
-export default Index;
+function App(): JSX.Element {
+    return (
+        <View style={styles.page}>
+        <MapView style={styles.map} mapStyle={styleUrl} />
+    </View>
+);
+}
+
+export default App;
