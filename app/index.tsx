@@ -1,28 +1,31 @@
-import * as MapLibreGL from '@maplibre/maplibre-react-native';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-
-// Import the style JSON
+import { StyleSheet, View } from "react-native";
+// Correctly import the MapView component as a named export.
+import { MapView } from '@maplibre/maplibre-react-native';
+// Import the map style from the local JSON file.
 import style from './style.json';
 
-// Set the access token for MapLibre GL
-MapLibreGL.setAccessToken(null);
-
-const App = () => {
+/**
+ * This is the main screen of the application.
+ * It displays a full-screen map using MapLibre.
+ */
+const Index = () => {
   return (
+    // A container view that takes up the full screen.
     <View style={styles.container}>
-      <MapLibreGL.MapView
-        style={styles.map}
-        styleJSON={JSON.stringify(style)}>
-        <MapLibreGL.Camera
-          zoomLevel={10}
-          centerCoordinate={[-74.0060, 40.7128]} // New York City
-        />
-      </MapLibreGL.MapView>
+      {/* The MapView component renders the map.
+        - The `style` prop makes the map fill its container.
+        - The `styleURL` prop loads the map's appearance. It can accept
+          a URL or, as in this case, a stringified JSON style object.
+      */}
+      <MapView 
+        style={styles.map} 
+        styleURL={JSON.stringify(style)} 
+      />
     </View>
   );
 };
 
+// Use StyleSheet.create for performance and organization.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -32,4 +35,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Index;
