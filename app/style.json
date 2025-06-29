@@ -1,7 +1,6 @@
 {
   "version": 8,
   "name": "Topotrek Debug Style",
-  "glyphs": "pmtiles://us-northeast-osm.pmtiles",
   "sources": {
     "basemap-osm": {
       "type": "vector",
