@@ -3,12 +3,11 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as lightURL from './style.json';
 
-// Your Protomaps API Key
-const PROTOMAPS_API_KEY = '471215cca48e7f87';
+
 
 // Protomaps style URL. This style JSON uses a pmtiles source internally.
 // You can try other styles like 'dark', 'light', 'day', 'night'
-const protomapsStyleUrl = lightURL;
+const styleUrl = lightURL;
 
 
 const styles = StyleSheet.create({
@@ -27,7 +26,7 @@ const styles = StyleSheet.create({
 function App(): JSX.Element {
     return (
         <View style={styles.page}>
-        <MapView style={styles.map} mapStyle={protomapsStyleUrl} />
+        <MapView style={styles.map} mapStyle={styleUrl} />
     </View>
 );
 }
