@@ -9,7 +9,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "extract:northeast": ".\\pmtiles.exe extract https://build.protomaps.com/20250623.pmtiles northeast.pmtiles --bbox=-81,39,-66,48 --maxzoom=12"
+    "extract:northeast": ".\\pmtiles.exe extract https://build.protomaps.com/20250623.pmtiles northeast.pmtiles --bbox=-79.76,40.49,-71.86,45.02 --maxzoom=16"
   },
   "dependencies": {
     "@expo/server": "^0.6.3",
