@@ -7,16 +7,15 @@
     "icon": "./assets/images/icon.png",
     "scheme": "topotrek",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lohnesn.Topotrek"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.lohnesn.Topotrek"
     },
     "web": {
@@ -35,6 +34,12 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Topotrek to use your location to show your position on the map."
+        }
+      ],
       "@maplibre/maplibre-react-native"
     ],
     "experiments": {
@@ -42,3 +47,4 @@
     }
   }
 }
+

@@ -21,12 +21,12 @@
     "terrarium": {
       "type": "raster-dem",
       "tiles": [
-        "https://api.maptiler.com/tiles/terrain-rgb-v2/{z}/{x}/{y}.webp?key=hOL9m32oLnOOhz9KAqQQ"
+        "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
       ],
       "minzoom": 0,
       "maxzoom": 15,
-      "tileSize": 512,
-      "encoding": "mapbox"
+      "tileSize": 256,
+      "encoding": "terrarium"
     },
     "contour_10m": {
       "type": "vector",
@@ -140,7 +140,7 @@
       "paint": {
         "hillshade-shadow-color": "hsl(39, 21%, 33%)",
         "hillshade-illumination-direction": 315,
-        "hillshade-exaggeration": .8,
+        "hillshade-exaggeration": .3
       }
     },
     {
