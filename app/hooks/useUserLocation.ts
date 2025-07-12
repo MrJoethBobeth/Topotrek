@@ -52,3 +52,5 @@ export function useUserLocation() {
 
   return userState;
 }
+
+export default useUserLocation

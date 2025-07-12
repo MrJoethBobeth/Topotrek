@@ -1,56 +1,61 @@
-import { Camera, MapView as MapLibreMapView, UserLocation } from '@maplibre/maplibre-react-native';
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { useUserLocation } from '../hooks/useUserLocation';
+import { Camera, MapView as MapLibreMapView, UserLocation, type CameraRef } from '@maplibre/maplibre-react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import useUserLocation from '../hooks/useUserLocation';
+import MapControls from './MapControls';
 
 interface MapViewProps {
   mapStyleObject: object;
 }
 
 const MapView: React.FC<MapViewProps> = ({ mapStyleObject }) => {
-  // Our hook now provides both location and heading from the device hardware.
-  const { location, heading } = useUserLocation();
+  const { location } = useUserLocation();
+  // 1. We now use state to hold the camera instance. This avoids the previous type errors.
+  const [camera, setCamera] = useState<CameraRef | null>(null);
+  const hasCentered = useRef(false);
+
+  // 2. This effect runs when the camera is ready AND the user's location is found.
+  useEffect(() => {
+    // By checking for `camera` and `location`, we eliminate the race condition.
+    if (camera && location && !hasCentered.current) {
+      // This ensures the initial animation to the user's location happens reliably.
+      camera.flyTo([location.coords.longitude, location.coords.latitude], 2000);
+      hasCentered.current = true; // Mark as centered to prevent this from running again.
+    }
+  }, [camera, location]); // The effect now correctly depends on both the camera and location.
 
   return (
-    <MapLibreMapView
-      style={styles.map}
-      mapStyle={mapStyleObject}
-      compassEnabled={true}
-    >
-      {/* The UserLocation component shows the blue "puck" on the map.
-          'showsUserHeadingIndicator' makes the puck's arrow point in the direction of the device's heading.
-      */}
-      <UserLocation
-        visible={true}
-        showsUserHeadingIndicator={true}
-      />
+    <View style={styles.container}>
+      <MapLibreMapView
+        style={styles.map}
+        mapStyle={mapStyleObject}
+        compassEnabled={true}
+        // Add a minZoomLevel to prevent the user from zooming out to a blank world.
+        minZoomLevel={3}
+      >
+        <UserLocation
+          visible={true}
+          showsUserHeadingIndicator={true}
+        />
+        
+        {/* 3. The 'ref' prop is now a callback. When the Camera mounts, it calls `setCamera`
+            with its instance, updating our state and triggering the useEffect. */}
+        <Camera ref={setCamera} />
+
+      </MapLibreMapView>
       
-      {/*
-        The Camera's view is controlled by the user's location and heading.
-        This creates a "first-person" navigation experience.
-      */}
-      <Camera
-        // Center the map on the user's current coordinates.
-        centerCoordinate={
-          location
-            ? [location.coords.longitude, location.coords.latitude]
-            : [-74.0060, 40.7128] // Default to New York City if location is not yet available.
-        }
-        // Rotate the map to match the direction the user's device is pointing.
-        // We use 'trueHeading' for the most accurate direction.
-        heading={heading?.trueHeading ?? 0}
-        zoomLevel={16}
-        animationMode={'easeTo'}
-        animationDuration={500} // Smoothly animate camera changes.
-      />
-    </MapLibreMapView>
+      {/* 4. We pass the camera state down to the controls. */}
+      <MapControls camera={camera} location={location} />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   map: {
     flex: 1,
-    alignSelf: 'stretch',
   },
 });
 
