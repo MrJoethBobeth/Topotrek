@@ -40,3 +40,4 @@ yarn-error.*
 app-example
 
 .pmtiles
+app/style.json
