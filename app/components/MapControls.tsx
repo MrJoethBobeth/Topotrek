@@ -1,33 +1,15 @@
-import { type CameraRef } from '@maplibre/maplibre-react-native';
-import * as Location from 'expo-location';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// Define the props that this component will accept.
 interface MapControlsProps {
-  // 1. The component now accepts the camera instance directly, which may be null initially.
-  camera: CameraRef | null;
-  location: Location.LocationObject | null;
+  // 1. The component now accepts a simple function to re-enable tracking.
+  recenter: () => void;
 }
 
-const MapControls: React.FC<MapControlsProps> = ({ camera, location }) => {
-  /**
-   * This function is called when the user presses the button.
-   * It commands the camera to fly to the user's current location.
-   */
-  const centerOnUser = () => {
-    // 2. The check is now simpler and more direct.
-    if (camera && location) {
-      camera.flyTo(
-        [location.coords.longitude, location.coords.latitude],
-        1200 // Animation duration in milliseconds
-      );
-    }
-  };
-
+const MapControls: React.FC<MapControlsProps> = ({ recenter }) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={centerOnUser}>
+      <TouchableOpacity style={styles.button} onPress={recenter}>
         <Text style={styles.buttonText}>🎯</Text>
       </TouchableOpacity>
     </View>
