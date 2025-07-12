@@ -8,8 +8,8 @@ interface MapViewProps {
 }
 
 const MapView: React.FC<MapViewProps> = ({ mapStyleObject }) => {
-  // Our custom hook provides a continuous stream of location updates.
-  const userLocation = useUserLocation();
+  // Our hook now provides both location and heading from the device hardware.
+  const { location, heading } = useUserLocation();
 
   return (
     <MapLibreMapView
@@ -17,28 +17,31 @@ const MapView: React.FC<MapViewProps> = ({ mapStyleObject }) => {
       mapStyle={mapStyleObject}
       compassEnabled={true}
     >
-      {/* The UserLocation component is only for displaying the puck. */}
+      {/* The UserLocation component shows the blue "puck" on the map.
+          'showsUserHeadingIndicator' makes the puck's arrow point in the direction of the device's heading.
+      */}
       <UserLocation
         visible={true}
         showsUserHeadingIndicator={true}
       />
       
       {/*
-        By binding the Camera's props directly to our `userLocation` state,
-        we ensure that every time the location updates, the camera's position
-        is re-evaluated and the map view changes.
+        The Camera's view is controlled by the user's location and heading.
+        This creates a "first-person" navigation experience.
       */}
       <Camera
+        // Center the map on the user's current coordinates.
         centerCoordinate={
-          userLocation
-            ? [userLocation.coords.longitude, userLocation.coords.latitude]
-            : [-74.0060, 40.7128] // A default location before the first update
+          location
+            ? [location.coords.longitude, location.coords.latitude]
+            : [-74.0060, 40.7128] // Default to New York City if location is not yet available.
         }
-        // Bind the map's heading to the device's heading from our location object.
-        heading={userLocation?.coords.heading ?? 0}
+        // Rotate the map to match the direction the user's device is pointing.
+        // We use 'trueHeading' for the most accurate direction.
+        heading={heading?.trueHeading ?? 0}
         zoomLevel={16}
         animationMode={'easeTo'}
-        animationDuration={500} // A short animation for smooth tracking
+        animationDuration={500} // Smoothly animate camera changes.
       />
     </MapLibreMapView>
   );

@@ -3,14 +3,18 @@ import { useEffect, useState } from 'react';
 
 /**
  * A custom React hook to continuously track the user's current location and heading.
- * It handles permission requests and manages a location subscription.
- * @returns {Location.LocationObject | null} The user's latest location object, or null if not available.
+ * It handles permission requests and manages subscriptions for both location and heading updates.
+ * @returns {{ location: Location.LocationObject | null; heading: Location.LocationHeadingObject | null }} An object containing the latest location and heading.
  */
 export function useUserLocation() {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [userState, setUserState] = useState<{
+    location: Location.LocationObject | null;
+    heading: Location.LocationHeadingObject | null;
+  }>({ location: null, heading: null });
 
   useEffect(() => {
-    let subscription: Location.LocationSubscription | null = null;
+    let locationSubscription: Location.LocationSubscription | null = null;
+    let headingSubscription: Location.LocationSubscription | null = null;
 
     const startWatching = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -19,29 +23,32 @@ export function useUserLocation() {
         return;
       }
 
-      // Start watching for position changes with high accuracy for navigation.
-      subscription = await Location.watchPositionAsync(
+      // Start watching for position changes
+      locationSubscription = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.BestForNavigation,
-          timeInterval: 1000, // Update every 1 second
-          distanceInterval: 1, // Update every 1 meter
+          timeInterval: 1000,
+          distanceInterval: 1,
         },
         (newLocation) => {
-          setLocation(newLocation); // Update state with the new location
+          setUserState((prevState) => ({ ...prevState, location: newLocation }));
         }
       );
+
+      // Start watching for heading changes
+      headingSubscription = await Location.watchHeadingAsync((newHeading) => {
+        setUserState((prevState) => ({ ...prevState, heading: newHeading }));
+      });
     };
 
     startWatching();
 
-    // Cleanup function: This is crucial to prevent memory leaks.
-    // It runs when the component using the hook unmounts.
+    // Cleanup function to remove subscriptions on unmount
     return () => {
-      if (subscription) {
-        subscription.remove();
-      }
+      locationSubscription?.remove();
+      headingSubscription?.remove();
     };
-  }, []); // Empty dependency array ensures this runs only once on mount.
+  }, []); // Empty dependency array ensures this runs only once.
 
-  return location;
+  return userState;
 }
